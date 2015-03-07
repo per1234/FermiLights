@@ -6,13 +6,13 @@
 
 //color of the light
 //Order is GRB, not RGB
-//needs at least 02 for red
-#define projectY 0xFF00FF
+#define projectY 0xFF0099
 #define red 0x00FF00
 #define green 0xFF0000
 #define blue 0x0000FF
 #define yellow 0xFFFF00
 #define black 0x000000
+#define purple 0x00FFFF
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -80,26 +80,21 @@ void setup() {
   // FastLED.addLeds<SM16716, DATA_PIN, CLOCK_PIN, RGB>(leds, NUM_LEDS);
   // FastLED.addLeds<LPD8806, DATA_PIN, CLOCK_PIN, RGB>(leds, NUM_LEDS);
   for (int i=0;i<NUM_LEDS;i++){
-    leds[i] = CRGB::Blue;
+    leds[i] = black;
   }
 }
 
 // This function runs over and over, and is where you do the magic to light
 // your leds.
 void loop() {
-
-  
-
-// test code comment this out before running on the robot  
-  
-
-//  blueAlliance = true;
-//  openArms = false;
-//  tote = false;
-//  disabled = false;
   
 //Read digital inputs
   blueAlliance = digitalRead(BLUE_ALLIANCE);
+  openArms = digitalRead(OPEN);
+  tote = digitalRead(TOTE);
+  disabled = digitalRead(DISABLED);
+  
+//sets allianceColor based on the the digital input from digital input 3
   if (blueAlliance) {
      allianceColor = blue; 
   }
@@ -107,8 +102,10 @@ void loop() {
       allianceColor = red; 
   }
   
-  openArms = digitalRead(OPEN);
-  tote = digitalRead(TOTE);
+//sets the color of the elevator lights
+//open arms:    green
+//tote in arms: yellow
+//closed arms:  red
   if (openArms) {
      color = green; 
   }
@@ -118,31 +115,14 @@ void loop() {
   else {
      color = red; 
   }
-  
-  disabled = digitalRead(DISABLED);
-  /*if (disabled) {
-     color = projectY;
-     allianceColor = projectY; 
-  }*/
-  
-  //read analog;
-  robotHeight=analogRead(0); //Height is a value between 0 and 1024
-  LEDHeight=(NUM_LEDS-UNDERCARRIAGE)*robotHeight/1024/2; //LEDHeight is amount of LEDS to be lit on each side
 
-   
+  //read analog;
+  robotHeight=analogRead(5); //Height is a value between 0 and 1024
+  LEDHeight=(NUM_LEDS-UNDERCARRIAGE)*(robotHeight/1024)/2; //LEDHeight is amount of LEDS to be lit on each side
   
   for (int i=0;i<=NUM_LEDS;i++){
-    /*if (i < height) {
-      leds[i]=color;       
-    }  
-    else if ((NUM_LEDS - i) < height) {
-      leds[i]=color; 
-    }
-    else {
-      leds[i]=CRGB::Black;  
-    }
-    leds[i]=green;*/
-    if (i < LEFT_SIDE) { //Adressing LEFT_SIDE
+    
+    if (i < LEFT_SIDE) { //Adresses LEFT_SIDE
       if (i < LEDHeight) {
         leds[i] = color; 
       }
@@ -153,7 +133,8 @@ void loop() {
         leds[i] = black;
       }
     }
-    else if (i < RIGHT_SIDE + LEFT_SIDE) { //Addressing RIGHT_SIDE
+    
+    else if (i < RIGHT_SIDE + LEFT_SIDE) { //Addresses RIGHT_SIDE
       if (i < LEFT_SIDE + TOP_LEDS) {
          leds[i] = color; 
       }
@@ -164,16 +145,12 @@ void loop() {
         leds[i] = black;
       }
     }
-    else {//Addressing UNDERCARRIAGE
-//      if (blueAlliance) {
+    
+    else {//Addresses UNDERCARRIAGE
         leds[i] = allianceColor;
-/*      }
-      else{
-        leds[i] = allianceColor;
-      }*/
     }  
   }
-  
+//sets the color of all LED's to projectY (turquoise)
   if (disabled) {
      for (int i = 0; i < NUM_LEDS; i++) {
         leds[i] = projectY;
@@ -182,7 +159,7 @@ void loop() {
   
   
   FastLED.show();  
-  delay(100);
+  delay(5);
 }
 
 
